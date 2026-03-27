@@ -39,9 +39,7 @@ pub fn read_stdin(format: Option<&InputFormat>, delimiter: Option<u8>) -> Result
     let fmt = match format {
         Some(f) => f.clone(),
         None => detect::detect_from_bytes(&bytes).ok_or_else(|| {
-            ArrowCliError::FormatDetectionFailed(
-                "stdin (use --format to specify)".to_string(),
-            )
+            ArrowCliError::FormatDetectionFailed("stdin (use --format to specify)".to_string())
         })?,
     };
 
