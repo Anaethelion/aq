@@ -1,6 +1,5 @@
 use std::path::Path;
 
-
 use arrow::record_batch::RecordBatch;
 use parquet::arrow::arrow_reader::ParquetRecordBatchReaderBuilder;
 

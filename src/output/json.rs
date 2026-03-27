@@ -52,8 +52,14 @@ mod tests {
         let text = String::from_utf8(out).unwrap();
         let lines: Vec<&str> = text.lines().collect();
         assert_eq!(lines.len(), 2);
-        assert_eq!(serde_json::from_str::<serde_json::Value>(lines[0]).unwrap(), json!({"a": 1}));
-        assert_eq!(serde_json::from_str::<serde_json::Value>(lines[1]).unwrap(), json!({"b": 2}));
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(lines[0]).unwrap(),
+            json!({"a": 1})
+        );
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(lines[1]).unwrap(),
+            json!({"b": 2})
+        );
     }
 
     #[test]

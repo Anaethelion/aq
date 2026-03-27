@@ -19,20 +19,21 @@ pub fn compile(expr: &str) -> Result<Filter> {
         .chain(jaq_std::funs())
         .chain(jaq_json::funs());
 
-    let program = File { code: expr, path: () };
+    let program = File {
+        code: expr,
+        path: (),
+    };
     let loader = Loader::new(defs);
     let arena = Arena::default();
 
-    let modules = loader
-        .load(&arena, program)
-        .map_err(|errs| {
-            let msg = errs
-                .iter()
-                .map(|(file, _)| format!("cannot parse `{}`", file.code))
-                .collect::<Vec<_>>()
-                .join("; ");
-            ArrowCliError::JqParse(msg)
-        })?;
+    let modules = loader.load(&arena, program).map_err(|errs| {
+        let msg = errs
+            .iter()
+            .map(|(file, _)| format!("cannot parse `{}`", file.code))
+            .collect::<Vec<_>>()
+            .join("; ");
+        ArrowCliError::JqParse(msg)
+    })?;
 
     let filter = jaq_core::Compiler::default()
         .with_funs(funs)
@@ -174,10 +175,7 @@ mod tests {
     #[test]
     fn slurp_aggregate_sum() {
         let f = compile("[.[].salary] | add").unwrap();
-        let rows = vec![
-            json!({"salary": 90000}),
-            json!({"salary": 65000}),
-        ];
+        let rows = vec![json!({"salary": 90000}), json!({"salary": 65000})];
         let out = run_slurp(&f, rows).unwrap();
         assert_eq!(out, vec![json!(155000)]);
     }

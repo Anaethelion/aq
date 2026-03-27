@@ -27,7 +27,7 @@ pub fn batches_to_json_rows(batches: &[RecordBatch]) -> Result<Vec<Value>> {
     let rows = text
         .lines()
         .filter(|l| !l.is_empty())
-        .map(|l| serde_json::from_str::<Value>(l))
+        .map(serde_json::from_str::<Value>)
         .collect::<std::result::Result<Vec<_>, _>>()?;
 
     Ok(rows)
