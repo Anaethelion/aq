@@ -1,0 +1,32 @@
+[package]
+name = "aq"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[[bin]]
+name = "aq"
+path = "src/main.rs"
+
+[dependencies]
+# Arrow ecosystem
+arrow = { version = "54", features = ["json", "csv", "ipc", "prettyprint"] }
+parquet = { version = "54", features = ["arrow"] }
+
+# jq engine (pre-release but the only self-contained option)
+jaq-core = "3.0.0-gamma"
+jaq-json = "2.0.0-gamma"
+jaq-std = { version = "3.0.0-gamma", default-features = false, features = ["std", "math"] }
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Output
+comfy-table = "7"
+is-terminal = "0.4"
+
+# Error handling + serialization
+anyhow = "1"
+thiserror = "2"
+serde_json = "1"
+bytes = "1"
