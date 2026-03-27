@@ -1,5 +1,5 @@
 /// Generate binary test fixtures that can't be created from text files alone.
-/// Run with: cargo run --bin gen_fixtures
+/// Run with: cargo run --example gen_fixtures
 use std::sync::Arc;
 
 use arrow::array::{BooleanArray, Int64Array, Int64Builder, ListBuilder, StringArray};
