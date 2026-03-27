@@ -22,6 +22,19 @@ fn main() {
 fn run() -> Result<()> {
     let mut args = Args::parse();
 
+    // No args + interactive stdin → show help instead of hanging.
+    if args.expr.is_none()
+        && args.files.is_empty()
+        && !args.null_input
+        && !args.schema
+        && is_terminal::IsTerminal::is_terminal(&std::io::stdin())
+    {
+        let mut cmd = <Args as clap::CommandFactory>::command();
+        cmd.print_help()?;
+        println!();
+        return Ok(());
+    }
+
     let delimiter: Option<u8> = args.delimiter.map(|c| c as u8);
 
     // Disambiguate: if the first positional arg looks like a file
