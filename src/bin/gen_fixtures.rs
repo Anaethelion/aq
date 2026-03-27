@@ -2,9 +2,7 @@
 /// Run with: cargo run --bin gen_fixtures
 use std::sync::Arc;
 
-use arrow::array::{
-    BooleanArray, Int64Array, Int64Builder, ListBuilder, StringArray,
-};
+use arrow::array::{BooleanArray, Int64Array, Int64Builder, ListBuilder, StringArray};
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
 use parquet::arrow::ArrowWriter;
