@@ -13,6 +13,12 @@ Each row in the file is treated as a JSON object. The expression runs on each ro
 ## Install
 
 ```bash
+cargo install --git https://github.com/Anaethelion/aq
+```
+
+Or from a local clone:
+
+```bash
 cargo install --path .
 ```
 
