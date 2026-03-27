@@ -10,7 +10,7 @@ path = "src/main.rs"
 
 [dependencies]
 # Arrow ecosystem
-arrow = { version = "54", features = ["json", "csv", "ipc", "prettyprint"] }
+arrow = { version = "54", features = ["json", "csv", "ipc"] }
 parquet = { version = "54", features = ["arrow"] }
 
 # jq engine (pre-release but the only self-contained option)
@@ -30,3 +30,9 @@ anyhow = "1"
 thiserror = "2"
 serde_json = "1"
 bytes = "1"
+
+[profile.release]
+lto = true           # cross-crate inlining + dead-code elimination
+codegen-units = 1    # single CGU lets LLVM see the whole program
+strip = "symbols"    # remove symbol table (keeps panic messages)
+panic = "abort"      # no unwinding machinery
