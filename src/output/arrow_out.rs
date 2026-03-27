@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use arrow::array::{
     ArrayRef, BooleanBuilder, Float64Array, Float64Builder, Int64Array, Int64Builder, ListBuilder,
-    StringBuilder, StringArray,
+    StringArray, StringBuilder,
 };
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::ipc::writer::StreamWriter;
@@ -286,7 +286,10 @@ pub fn write<W: Write>(out: &mut W, values: &[Value]) -> Result<()> {
         let batch = RecordBatch::try_new(schema.clone(), vec![arr])?;
         (schema, batch)
     } else {
-        let dtypes: Vec<DataType> = columns.iter().map(|c| infer_column_type(values, c)).collect();
+        let dtypes: Vec<DataType> = columns
+            .iter()
+            .map(|c| infer_column_type(values, c))
+            .collect();
 
         let fields: Vec<Field> = columns
             .iter()
@@ -452,8 +455,14 @@ mod tests {
         ];
         let batch = run(&values);
         let schema = batch.schema();
-        assert_eq!(schema.field_with_name("age").unwrap().data_type(), &DataType::Int64);
-        assert_eq!(schema.field_with_name("name").unwrap().data_type(), &DataType::Utf8);
+        assert_eq!(
+            schema.field_with_name("age").unwrap().data_type(),
+            &DataType::Int64
+        );
+        assert_eq!(
+            schema.field_with_name("name").unwrap().data_type(),
+            &DataType::Utf8
+        );
         let ages = batch.column_by_name("age").unwrap();
         let ages = ages.as_any().downcast_ref::<Int64Array>().unwrap();
         assert_eq!(ages.value(0), 30);
@@ -478,7 +487,11 @@ mod tests {
         let values = vec![json!({"active": true}), json!({"active": false})];
         let batch = run(&values);
         assert_eq!(
-            batch.schema().field_with_name("active").unwrap().data_type(),
+            batch
+                .schema()
+                .field_with_name("active")
+                .unwrap()
+                .data_type(),
             &DataType::Boolean
         );
         let col = batch.column_by_name("active").unwrap();
@@ -504,15 +517,15 @@ mod tests {
 
     #[test]
     fn round_trip_list_of_int64() {
-        let values = vec![
-            json!({"scores": [90, 85, 92]}),
-            json!({"scores": [70, 75]}),
-        ];
+        let values = vec![json!({"scores": [90, 85, 92]}), json!({"scores": [70, 75]})];
         let batch = run(&values);
-        let expected_dtype =
-            DataType::List(Arc::new(Field::new("item", DataType::Int64, true)));
+        let expected_dtype = DataType::List(Arc::new(Field::new("item", DataType::Int64, true)));
         assert_eq!(
-            batch.schema().field_with_name("scores").unwrap().data_type(),
+            batch
+                .schema()
+                .field_with_name("scores")
+                .unwrap()
+                .data_type(),
             &expected_dtype
         );
         let col = batch.column_by_name("scores").unwrap();
@@ -535,10 +548,13 @@ mod tests {
             json!({"ratios": [0.7, 0.75]}),
         ];
         let batch = run(&values);
-        let expected_dtype =
-            DataType::List(Arc::new(Field::new("item", DataType::Float64, true)));
+        let expected_dtype = DataType::List(Arc::new(Field::new("item", DataType::Float64, true)));
         assert_eq!(
-            batch.schema().field_with_name("ratios").unwrap().data_type(),
+            batch
+                .schema()
+                .field_with_name("ratios")
+                .unwrap()
+                .data_type(),
             &expected_dtype
         );
         let col = batch.column_by_name("ratios").unwrap();
@@ -550,13 +566,9 @@ mod tests {
 
     #[test]
     fn round_trip_list_of_strings() {
-        let values = vec![
-            json!({"tags": ["eng", "python"]}),
-            json!({"tags": ["mkt"]}),
-        ];
+        let values = vec![json!({"tags": ["eng", "python"]}), json!({"tags": ["mkt"]})];
         let batch = run(&values);
-        let expected_dtype =
-            DataType::List(Arc::new(Field::new("item", DataType::Utf8, true)));
+        let expected_dtype = DataType::List(Arc::new(Field::new("item", DataType::Utf8, true)));
         assert_eq!(
             batch.schema().field_with_name("tags").unwrap().data_type(),
             &expected_dtype
@@ -571,10 +583,7 @@ mod tests {
 
     #[test]
     fn round_trip_list_with_nulls() {
-        let values = vec![
-            json!({"scores": [1, null, 3]}),
-            json!({"scores": null}),
-        ];
+        let values = vec![json!({"scores": [1, null, 3]}), json!({"scores": null})];
         let batch = run(&values);
         let col = batch.column_by_name("scores").unwrap();
         let col = col.as_any().downcast_ref::<ListArray>().unwrap();
@@ -589,8 +598,7 @@ mod tests {
             json!({"flags": [false, true]}),
         ];
         let batch = run(&values);
-        let expected_dtype =
-            DataType::List(Arc::new(Field::new("item", DataType::Boolean, true)));
+        let expected_dtype = DataType::List(Arc::new(Field::new("item", DataType::Boolean, true)));
         assert_eq!(
             batch.schema().field_with_name("flags").unwrap().data_type(),
             &expected_dtype
@@ -598,7 +606,10 @@ mod tests {
         let col = batch.column_by_name("flags").unwrap();
         let col = col.as_any().downcast_ref::<ListArray>().unwrap();
         let row0 = col.value(0);
-        let row0 = row0.as_any().downcast_ref::<arrow::array::BooleanArray>().unwrap();
+        let row0 = row0
+            .as_any()
+            .downcast_ref::<arrow::array::BooleanArray>()
+            .unwrap();
         assert!(row0.value(0));
         assert!(!row0.value(1));
         assert!(row0.value(2));
@@ -607,10 +618,7 @@ mod tests {
     #[test]
     fn round_trip_null_list_entry() {
         // a row missing the array field entirely should produce a null list
-        let values = vec![
-            json!({"scores": [1, 2]}),
-            json!({}),
-        ];
+        let values = vec![json!({"scores": [1, 2]}), json!({})];
         let batch = run(&values);
         let col = batch.column_by_name("scores").unwrap();
         let col = col.as_any().downcast_ref::<ListArray>().unwrap();

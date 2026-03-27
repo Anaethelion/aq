@@ -48,27 +48,42 @@ mod tests {
 
     #[test]
     fn path_parquet() {
-        assert_eq!(detect_from_path(Path::new("data.parquet")).unwrap(), InputFormat::Parquet);
+        assert_eq!(
+            detect_from_path(Path::new("data.parquet")).unwrap(),
+            InputFormat::Parquet
+        );
     }
 
     #[test]
     fn path_arrow() {
-        assert_eq!(detect_from_path(Path::new("data.arrow")).unwrap(), InputFormat::Arrow);
+        assert_eq!(
+            detect_from_path(Path::new("data.arrow")).unwrap(),
+            InputFormat::Arrow
+        );
     }
 
     #[test]
     fn path_csv() {
-        assert_eq!(detect_from_path(Path::new("data.csv")).unwrap(), InputFormat::Csv);
+        assert_eq!(
+            detect_from_path(Path::new("data.csv")).unwrap(),
+            InputFormat::Csv
+        );
     }
 
     #[test]
     fn path_json() {
-        assert_eq!(detect_from_path(Path::new("data.json")).unwrap(), InputFormat::Json);
+        assert_eq!(
+            detect_from_path(Path::new("data.json")).unwrap(),
+            InputFormat::Json
+        );
     }
 
     #[test]
     fn path_ndjson() {
-        assert_eq!(detect_from_path(Path::new("data.ndjson")).unwrap(), InputFormat::Json);
+        assert_eq!(
+            detect_from_path(Path::new("data.ndjson")).unwrap(),
+            InputFormat::Json
+        );
     }
 
     #[test]
@@ -85,7 +100,10 @@ mod tests {
 
     #[test]
     fn bytes_parquet_magic() {
-        assert_eq!(detect_from_bytes(b"PAR1\x00\x00"), Some(InputFormat::Parquet));
+        assert_eq!(
+            detect_from_bytes(b"PAR1\x00\x00"),
+            Some(InputFormat::Parquet)
+        );
     }
 
     #[test]
@@ -96,7 +114,10 @@ mod tests {
 
     #[test]
     fn bytes_arrow_file_magic() {
-        assert_eq!(detect_from_bytes(b"ARROW1\0\0rest"), Some(InputFormat::Arrow));
+        assert_eq!(
+            detect_from_bytes(b"ARROW1\0\0rest"),
+            Some(InputFormat::Arrow)
+        );
     }
 
     #[test]

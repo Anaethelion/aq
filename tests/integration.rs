@@ -173,7 +173,11 @@ fn csv_custom_delimiter_semicolon() {
 #[test]
 fn csv_with_missing_values() {
     let tmp = std::env::temp_dir().join("aq_test_missing.csv");
-    std::fs::write(&tmp, "name,age,dept\nAlice,30,Engineering\nBob,,Marketing\n").unwrap();
+    std::fs::write(
+        &tmp,
+        "name,age,dept\nAlice,30,Engineering\nBob,,Marketing\n",
+    )
+    .unwrap();
     let out = aq().args([tmp.to_str().unwrap()]).output().unwrap();
     assert!(out.status.success());
     let stdout = String::from_utf8(out.stdout).unwrap();
@@ -244,7 +248,10 @@ fn arrow_schema_has_int64_types() {
         .unwrap();
     assert!(out.status.success());
     let stdout = String::from_utf8(out.stdout).unwrap();
-    assert!(stdout.contains("Int64"), "expected Int64 in schema, got: {stdout}");
+    assert!(
+        stdout.contains("Int64"),
+        "expected Int64 in schema, got: {stdout}"
+    );
 }
 
 #[test]
@@ -263,10 +270,7 @@ fn arrow_numeric_filter_works() {
 
 #[test]
 fn arrow_table_output() {
-    let out = aq()
-        .args(["tests/fixtures/sample.arrow"])
-        .output()
-        .unwrap();
+    let out = aq().args(["tests/fixtures/sample.arrow"]).output().unwrap();
     assert!(out.status.success());
     let stdout = String::from_utf8(out.stdout).unwrap();
     assert!(stdout.contains("Alice"));
@@ -281,7 +285,12 @@ fn arrow_multi_batch_round_trip() {
 
     // Concatenate by writing both through aq to arrow then piping
     let out = aq()
-        .args(["-o", "ndjson", "tests/fixtures/sample.arrow", "tests/fixtures/sample.arrow"])
+        .args([
+            "-o",
+            "ndjson",
+            "tests/fixtures/sample.arrow",
+            "tests/fixtures/sample.arrow",
+        ])
         .output()
         .unwrap();
     assert!(out.status.success());
@@ -404,8 +413,14 @@ fn complex_arrow_schema_has_boolean_and_list_types() {
         .unwrap();
     assert!(out.status.success());
     let stdout = String::from_utf8(out.stdout).unwrap();
-    assert!(stdout.contains("Boolean"), "expected Boolean in schema, got: {stdout}");
-    assert!(stdout.contains("List"), "expected List types in schema, got: {stdout}");
+    assert!(
+        stdout.contains("Boolean"),
+        "expected Boolean in schema, got: {stdout}"
+    );
+    assert!(
+        stdout.contains("List"),
+        "expected List types in schema, got: {stdout}"
+    );
     assert!(stdout.contains("Int64"));
     assert!(stdout.contains("Float64"));
 }
@@ -439,7 +454,10 @@ fn complex_arrow_filter_by_boolean_in_list() {
 #[test]
 fn complex_arrow_filter_by_list_length() {
     let out = aq()
-        .args(["select((.scores | length) > 2)", "tests/fixtures/complex.arrow"])
+        .args([
+            "select((.scores | length) > 2)",
+            "tests/fixtures/complex.arrow",
+        ])
         .output()
         .unwrap();
     assert!(out.status.success());
@@ -464,7 +482,10 @@ fn complex_arrow_access_list_element() {
 #[test]
 fn complex_arrow_filter_by_tag_membership() {
     let out = aq()
-        .args(["select(.tags | contains([\"eng\"]))", "tests/fixtures/complex.arrow"])
+        .args([
+            "select(.tags | contains([\"eng\"]))",
+            "tests/fixtures/complex.arrow",
+        ])
         .output()
         .unwrap();
     assert!(out.status.success());
@@ -595,7 +616,8 @@ fn format_override_reads_csv_correctly() {
 fn multiple_files_concatenated() {
     let out = aq()
         .args([
-            "-o", "ndjson",
+            "-o",
+            "ndjson",
             "tests/fixtures/sample.csv",
             "tests/fixtures/sample.csv",
         ])
@@ -622,20 +644,14 @@ fn raw_output_unquotes_strings() {
 
 #[test]
 fn null_input_with_expression() {
-    let out = aq()
-        .args(["-n", "1 + 1"])
-        .output()
-        .unwrap();
+    let out = aq().args(["-n", "1 + 1"]).output().unwrap();
     assert!(out.status.success());
     assert_eq!(String::from_utf8(out.stdout).unwrap().trim(), "2");
 }
 
 #[test]
 fn null_input_with_literal() {
-    let out = aq()
-        .args(["-n", "[1,2,3] | length"])
-        .output()
-        .unwrap();
+    let out = aq().args(["-n", "[1,2,3] | length"]).output().unwrap();
     assert!(out.status.success());
     assert_eq!(String::from_utf8(out.stdout).unwrap().trim(), "3");
 }
@@ -643,7 +659,13 @@ fn null_input_with_literal() {
 #[test]
 fn arg_binding_string() {
     let out = aq()
-        .args(["--arg", "dept", "Engineering", "select(.dept == $dept)", "tests/fixtures/sample.csv"])
+        .args([
+            "--arg",
+            "dept",
+            "Engineering",
+            "select(.dept == $dept)",
+            "tests/fixtures/sample.csv",
+        ])
         .output()
         .unwrap();
     assert!(out.status.success());
@@ -657,8 +679,12 @@ fn arg_binding_string() {
 fn arg_binding_multiple() {
     let out = aq()
         .args([
-            "--arg", "min", "70000",
-            "--arg", "dept", "Engineering",
+            "--arg",
+            "min",
+            "70000",
+            "--arg",
+            "dept",
+            "Engineering",
             "select(.dept == $dept and .salary >= ($min | tonumber))",
             "tests/fixtures/sample.csv",
         ])

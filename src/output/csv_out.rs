@@ -5,7 +5,12 @@ use serde_json::Value;
 use crate::error::Result;
 
 /// Write JSON values as delimiter-separated values.
-pub fn write<W: Write>(out: &mut W, values: &[Value], no_header: bool, delimiter: u8) -> Result<()> {
+pub fn write<W: Write>(
+    out: &mut W,
+    values: &[Value],
+    no_header: bool,
+    delimiter: u8,
+) -> Result<()> {
     if values.is_empty() {
         return Ok(());
     }
@@ -32,7 +37,11 @@ pub fn write<W: Write>(out: &mut W, values: &[Value], no_header: bool, delimiter
         let row: Vec<String> = match val {
             Value::Object(map) => columns
                 .iter()
-                .map(|col| map.get(col).map(|v| csv_cell(v, delimiter)).unwrap_or_default())
+                .map(|col| {
+                    map.get(col)
+                        .map(|v| csv_cell(v, delimiter))
+                        .unwrap_or_default()
+                })
                 .collect(),
             other => vec![csv_cell(other, delimiter)],
         };

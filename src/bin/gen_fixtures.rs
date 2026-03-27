@@ -2,7 +2,9 @@
 /// Run with: cargo run --bin gen_fixtures
 use std::sync::Arc;
 
-use arrow::array::{BooleanArray, Float64Array, Int64Array, ListBuilder, Int64Builder, StringArray};
+use arrow::array::{
+    BooleanArray, Int64Array, Int64Builder, ListBuilder, StringArray,
+};
 use arrow::datatypes::{DataType, Field, Schema};
 use arrow::record_batch::RecordBatch;
 use parquet::arrow::ArrowWriter;
@@ -26,7 +28,12 @@ fn write_sample_parquet() {
         vec![
             Arc::new(StringArray::from(vec!["Alice", "Bob", "Charlie", "Diana"])),
             Arc::new(Int64Array::from(vec![30, 25, 35, 28])),
-            Arc::new(StringArray::from(vec!["Engineering", "Marketing", "Engineering", "HR"])),
+            Arc::new(StringArray::from(vec![
+                "Engineering",
+                "Marketing",
+                "Engineering",
+                "HR",
+            ])),
             Arc::new(Int64Array::from(vec![90000, 65000, 95000, 70000])),
         ],
     )
