@@ -86,6 +86,68 @@ aq -s '[.[].salary] | add / length' data.parquet  # average salary
 
 Format is auto-detected from the file extension or magic bytes. Use `-f` to override.
 
+## Limitations
+
+### Arrow → jq type mapping
+
+Every Arrow column is converted to JSON before jq sees it:
+
+| Arrow type | jq representation |
+|---|---|
+| `Int8/16/32/64`, `UInt8/16/32/64` | number |
+| `Float16/32/64` | number |
+| `Decimal128/256` | number or string (precision-dependent) |
+| `Date32/64`, `Timestamp`, `Time*`, `Duration`, `Interval` | integer (epoch in column units) |
+| `Utf8`, `LargeUtf8` | string |
+| `Binary`, `LargeBinary` | base64 string |
+| `Boolean` | boolean |
+| `List<T>`, `LargeList<T>`, `FixedSizeList<T>` | array |
+| `Struct` | object |
+| `Map<K,V>` | array of `{key, value}` objects |
+| `Dictionary<K,V>` | decoded to the dictionary value type |
+
+### jq → Arrow type mapping (`-o arrow`)
+
+When writing Arrow output, types are re-inferred from jq output values. Only a subset of Arrow types can be produced:
+
+| jq output | Arrow type |
+|---|---|
+| integer | `Int64` |
+| float | `Float64` |
+| boolean | `Boolean` |
+| string | `Utf8` |
+| uniform integer array | `List<Int64>` |
+| uniform float array | `List<Float64>` |
+| uniform boolean array | `List<Boolean>` |
+| uniform string array | `List<Utf8>` |
+| mixed-type array | `List<Utf8>` (elements serialized) |
+| object | `Utf8` (serialized as JSON string) |
+| all-null column | `Utf8` |
+
+Types not expressible in JSON (timestamps, decimals, binary, structs…) cannot be round-tripped through `-o arrow` — they arrive as integers or strings and leave as `Int64` or `Utf8`.
+
+### Precision loss
+
+- **Large integers**: jq uses IEEE 754 float64 internally, so `Int64` values beyond ±2^53 (~9 × 10^15) lose precision in expressions. Arithmetic and equality checks on such values may silently give wrong results.
+- **Integer width**: `Int8/16/32` and `UInt8/16/32` widen to `Int64` on `-o arrow` output.
+- **Float width**: `Float16/32` widen to `Float64`.
+- **UInt64**: Values above 2^53 lose precision when passed through jq.
+
+### Column ordering in Arrow output
+
+`serde_json` stores object keys in alphabetical order. Projection expressions like `{name, age}` produce `{age, name}` in the Arrow output — alphabetically sorted, not in expression order.
+
+### jaq vs jq compatibility
+
+`aq` uses [jaq](https://github.com/01mf02/jaq) rather than jq. Most everyday programs work, but some features are absent or differ:
+
+- **Not supported**: `$ENV`, `env`, `input`/`inputs`, `$__loc__`, `modulemeta`
+- **`debug`**: output format differs from jq
+- **`path` builtins**: `path()`, `getpath`, `setpath`, `delpaths` may behave differently
+- **`?//` (alternative operator)**: semantics may differ from jq
+- **`@format` strings**: `@base64`, `@uri`, `@csv`, `@tsv`, `@html`, `@json` are supported; `@base64d` requires valid padding
+- **Multiple files**: use `aq 'expr' a.json b.json` instead of `jq -n '[inputs]'`
+
 ## License
 
 Apache-2.0
